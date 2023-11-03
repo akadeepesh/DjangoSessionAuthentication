@@ -83,6 +83,8 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ["chatBackend.authentication.EmailBackend"]
+
 WSGI_APPLICATION = "DeCoder.wsgi.application"
 
 
