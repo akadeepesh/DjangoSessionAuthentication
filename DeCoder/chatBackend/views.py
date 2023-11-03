@@ -19,6 +19,7 @@ def login(request):
     user = authenticate(request, username=email, password=password)
 
     if user is None:
+        print("User not found")
         return Response({"error": "Invalid login credentials"})
 
     return Response({"message": "Logged in successfully"})
