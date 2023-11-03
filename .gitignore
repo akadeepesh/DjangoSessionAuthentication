@@ -4,3 +4,4 @@ __init__.py
 venv
 __pycache__
 DeCoder/db.sqlite3
+.env
