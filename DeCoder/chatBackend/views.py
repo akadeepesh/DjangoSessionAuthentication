@@ -16,7 +16,6 @@ def login(request):
     email = request.data.get("email")
     password = request.data.get("password")
 
-    # Perform authentication logic here, such as:
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
@@ -25,7 +24,6 @@ def login(request):
         )
 
     if user.password == password:
-        # User authenticated successfully
         return Response("Login successful", status=status.HTTP_200_OK)
     else:
         return Response(
