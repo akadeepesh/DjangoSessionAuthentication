@@ -4,6 +4,11 @@ from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -31,18 +36,35 @@ def login(request):
         )
 
 
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+@csrf_exempt
+def tokenize(request):
+    if request.method == "POST":
+        text = request.POST.get("text")
+        tokenization_type = request.POST.get("type")
+        if tokenization_type == "word":
+            tokens = word_tokenize(text)
+        elif tokenization_type == "sentence":
+            tokens = sent_tokenize(text)
+        else:
+            tokens = []
+        return JsonResponse({"tokens": tokens})
 
 
-def StopWords(request):
-    nltk.download("stopwords")
-    nltk.download("punkt")
-    input_text = request.data.get("input_text")
-    language = request.data.get("language")
-    words = word_tokenize(input_text)
-    stop_words = set(stopwords.words(language))
-    filtered_words = [word for word in words if word.lower() not in stop_words]
-    filtered_text = " ".join(filtered_words)
-    print(filtered_text)
+@csrf_exempt
+def remove_stopwords(request):
+    if request.method == "POST":
+        text = request.POST.get("text")
+        stop_words = set(stopwords.words("english"))
+        tokens = word_tokenize(text)
+        tokens = [token for token in tokens if token not in stop_words]
+        return JsonResponse({"tokens": tokens})
+
+
+@csrf_exempt
+def lemmatize(request):
+    if request.method == "POST":
+        text = request.POST.get("text")
+        tokens = word_tokenize(text)
+        lemmatizer = WordNetLemmatizer()
+        tokens = [lemmatizer.lemmatize(token) for token in tokens]
+        return JsonResponse({"tokens": tokens})
