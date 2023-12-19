@@ -4,6 +4,7 @@ from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -21,14 +22,11 @@ def login(request):
     email = request.data.get("email")
     password = request.data.get("password")
 
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        return Response(
-            "Invalid email or password", status=status.HTTP_401_UNAUTHORIZED
-        )
+    print(f"Email: {email}")  # Print the email
+    print(f"Password: {password}")  # Print the password
 
-    if user.password == password:
+    user = authenticate(request, username=email, password=password)
+    if user is not None:
         return Response("Login successful", status=status.HTTP_200_OK)
     else:
         return Response(
