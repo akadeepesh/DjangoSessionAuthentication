@@ -48,6 +48,8 @@ def tokenize(request):
         else:
             tokens = []
         return JsonResponse({"tokens": tokens})
+    else:
+        return JsonResponse("tokens")
 
 
 @csrf_exempt
