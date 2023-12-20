@@ -1,14 +1,12 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, login, tokenize, remove_stopwords, lemmatize
-
-router = DefaultRouter()
-router.register(r"users", UserViewSet)
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path("", include(router.urls)),
-    path("login/", login, name="login"),
-    path("tokenize/", tokenize, name="tokenize"),
-    path("remove_stopwords/", remove_stopwords, name="remove_stopwords"),
-    path("lemmatize/", lemmatize, name="lemmatize"),
+    path("register", views.UserRegister.as_view(), name="register"),
+    path("login", views.UserLogin.as_view(), name="login"),
+    path("logout", views.UserLogout.as_view(), name="logout"),
+    path("user", views.UserView.as_view(), name="user"),
+    path("tokenize", views.tokenize, name="tokenize"),
+    path("remove_stopwords", views.remove_stopwords, name="remove_stopwords"),
+    path("lemmatize", views.lemmatize, name="lemmatize"),
 ]
