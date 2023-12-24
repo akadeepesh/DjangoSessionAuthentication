@@ -1,13 +1,11 @@
-from rest_framework import viewsets
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
-from .serializers import UserRegisterSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer
 from rest_framework import permissions, status
-from .validations import custom_validation, validate_email, validate_password
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -25,19 +23,27 @@ class UserRegistrationView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserLogin(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = (SessionAuthentication,)
-
-    def post(self, request):
-        data = request.data
-        assert validate_email(data)
-        assert validate_password(data)
-        serializer = UserLoginSerializer(data=data)
+class UserLoginView(APIView):
+    def post(self, request, format=None):
+        serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.check_user(data)
-            login(request, user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            email = serializer.data.get("email")  # type: ignore
+            password = serializer.data.get("password")  # type: ignore
+            user = authenticate(email=email, password=password)
+            if user is not None:
+                return Response(
+                    {"msg": "Login Successful"},
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                return Response(
+                    {
+                        "errors": {
+                            "non_field_errors": ["Email or Password is not Valid"]
+                        }
+                    },
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
 
 class UserLogout(APIView):
@@ -49,13 +55,13 @@ class UserLogout(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class UserView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+# class UserView(APIView):
+#     permission_classes = (permissions.IsAuthenticated,)
+#     authentication_classes = (SessionAuthentication,)
 
-    def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+#     def get(self, request):
+#         serializer = UserSerializer(request.user)
+#         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
 @csrf_exempt
