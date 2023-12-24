@@ -100,7 +100,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = "chatBackend.AppUser"
+AUTH_USER_MODEL = "chatBackend.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
+from .serializers import UserRegisterSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -13,17 +13,16 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 
-class UserRegister(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request):
-        clean_data = custom_validation(request.data)
-        serializer = UserRegisterSerializer(data=clean_data)
+class UserRegistrationView(APIView):
+    def post(self, request, format=None):
+        serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.create(clean_data)
-            if user:
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(
+                {"msg": "Registration Successful"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLogin(APIView):
