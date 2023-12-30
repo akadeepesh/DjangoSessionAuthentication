@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import authenticate,login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
@@ -34,6 +34,7 @@ class UserLoginView(APIView):
             password = serializer.data.get("password")  # type: ignore
             user = authenticate(email=email, password=password)
             if user is not None:
+                login(request, user)
                 return Response(
                     {"msg": "Login Successful"},
                     status=status.HTTP_200_OK,
@@ -50,9 +51,6 @@ class UserLoginView(APIView):
 
 
 class UserLogout(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
-
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
