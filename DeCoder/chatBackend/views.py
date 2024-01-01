@@ -1,16 +1,16 @@
 from rest_framework.response import Response
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate,login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
 from rest_framework import permissions, status
-from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.tokenize import word_tokenize
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 
+#---------------------------------------------------------User Authentication-------------------------------------------------------#
 class UserRegistrationView(APIView):
     def post(self, request, format=None):
         serializer = UserRegisterSerializer(data=request.data)
@@ -65,37 +65,29 @@ class UserView(APIView):
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
-@csrf_exempt
-def tokenize(request):
-    if request.method == "POST":
-        text = request.POST.get("text")
-        tokenization_type = request.POST.get("type")
-        if tokenization_type == "word":
-            tokens = word_tokenize(text)
-        elif tokenization_type == "sentence":
-            tokens = sent_tokenize(text)
-        else:
-            tokens = []
-        return JsonResponse({"tokens": tokens})
-    else:
-        return JsonResponse("tokens")
+#-----------------------------------------Tokenization - RemovingStopWords - Lemmenization ------------------------------------------#
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
+class TokenizeSentence(APIView):
+    def post(self, request):
+        sentence = request.data.get('sentence')
+        tokenized_sentence = word_tokenize(sentence)
+        return Response({"tokenized_sentence": tokenized_sentence})
 
-@csrf_exempt
-def remove_stopwords(request):
-    if request.method == "POST":
-        text = request.POST.get("text")
-        stop_words = set(stopwords.words("english"))
-        tokens = word_tokenize(text)
-        tokens = [token for token in tokens if token not in stop_words]
-        return JsonResponse({"tokens": tokens})
+class RemoveStopwords(APIView):
+    def post(self, request):
+        sentence = request.data.get('sentence')
+        stop_words = set(stopwords.words('english'))
+        word_tokens = word_tokenize(sentence)
+        filtered_sentence = [w for w in word_tokens if not w in stop_words]
+        return Response({"filtered_sentence": filtered_sentence})
 
-
-@csrf_exempt
-def lemmatize(request):
-    if request.method == "POST":
-        text = request.POST.get("text")
-        tokens = word_tokenize(text)
+class LemmatizeWords(APIView):
+    def post(self, request):
+        sentence = request.data.get('sentence')
         lemmatizer = WordNetLemmatizer()
-        tokens = [lemmatizer.lemmatize(token) for token in tokens]
-        return JsonResponse({"tokens": tokens})
+        word_tokens = word_tokenize(sentence)
+        lemmatized_words = [lemmatizer.lemmatize(w) for w in word_tokens]
+        return Response({"lemmatized_words": lemmatized_words})
