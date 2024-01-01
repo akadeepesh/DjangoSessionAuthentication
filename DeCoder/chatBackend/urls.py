@@ -6,8 +6,7 @@ urlpatterns = [
     path("login/", views.UserLoginView.as_view(), name="login"),
     path("logout/", views.UserLogout.as_view(), name="logout"),
     path("user/", views.UserView.as_view(), name="user"),
-    # path("tokenize/", views.tokenize, name="tokenize"),
     path("tokenize/", views.TokenizeSentence.as_view(), name="TokenizeSentence"),
     path("RemoveStopwords/", views.RemoveStopwords.as_view(), name="RemoveStopwords"),
-    path('lemmatize/', views.LemmatizeWords.as_view(), name='lemmatize'),
+    path('lemmatize/', views.LemmatizeWords.as_view(), name='Lemmatization'),
 ]
