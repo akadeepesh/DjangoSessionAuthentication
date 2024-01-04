@@ -37,9 +37,12 @@ ALLOWED_HOSTS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    'http://0.0.0.0',
 ]
 
 CORS_ALLOWED_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
 
 # Application definition
 
@@ -52,13 +55,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "chatBackend.apps.ChatbackendConfig",
     "rest_framework",
-    "rest_framework_simplejwt",
     "corsheaders",
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -102,9 +104,12 @@ DATABASES = {
 AUTH_USER_MODEL = "chatBackend.User"
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
 }
 
 # Password validation
