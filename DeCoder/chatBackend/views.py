@@ -12,6 +12,7 @@ from nltk.stem import WordNetLemmatizer
 
 #---------------------------------------------------------User Authentication-------------------------------------------------------#
 class UserRegistrationView(APIView):
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, format=None):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
